@@ -35,16 +35,15 @@ int main(int argc, char **argv){
 	while(1){
 		char c;
 		char message[250];
+		char bye[250];
+		strcpy(bye,"bye\n");
 		fgets(message,250,stdin);
-		if(strcmp(message,"bye")==0){
-			char* despedida = strcat(username,"se ha desconectado del chat");
-			write(sockfd,despedida,strlen(despedida));
+		if(strcmp(message,bye)==0){
+			write(sockfd,username,strlen(username));
 			close(sockfd);
+			exit(0);
 		}
 		write(sockfd,message,strlen(message));
-		while(read(sockfd,&c,1)){
-        printf("%c", &c);
-    	}
 		
 	}
 	

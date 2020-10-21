@@ -23,7 +23,7 @@ int main(int argc, char **argv){
         int clientSocket = accept(sockfd, (struct sockaddr *)&clientAddress, (unsigned int*) &clientSize);
         char c;
         while(read(clientSocket,&c,1)){
-        printf("%c\n", c);
+        printf("%c", c);
     	}
 	}
 	
