@@ -16,8 +16,17 @@ int main(int argc, char **argv){
 	
 	int sockfd = socket(AF_INET, SOCK_STREAM,0);
 	bind(sockfd,(const struct sockaddr *)&serverAddress,sizeof(serverAddress));
+	listen(sockfd, 5);
+	while(1){
+		struct sockaddr_in clientAddress;
+ 		struct sockaddr_in clientAddress;
+        int clientSize = sizeof(clientAddress);
+        int clientSocket = accept(sockfd, (struct sockaddr *)&clientAddress, (unsigned int*) &clientSize);
+        char c;
+        char *message = "Hello desde gitpod";
+		write(clientSocket,message,strlen(message));
+        close(clientSocket);
+	}
 	
 	return 0;
 }
-
-
