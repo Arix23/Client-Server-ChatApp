@@ -22,21 +22,23 @@ int main(int argc, char **argv){
 	serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	
 	int sockfd = socket(AF_INET, SOCK_STREAM,0);
-    if(connect(sockfd,(struct sockaddr *)&serverAddress,sizeof(serverAddress))<0){
+    if(connect(sockfd,(struct sockaddr *)&serverAddr,sizeof(serverAddr))<0){
         printf("ERROR\n");
     }
-	char* bienvenida = username + "se ha conectado al chat.";
-	write(sockfd,bienvenida,strlen(bienvenida),0);
+	char* bienvenida = strcat(username,"se ha conectado al chat.");
+	write(sockfd,bienvenida,strlen(bienvenida));
 	
 	
 	while(1){
+		char c;
+		char* message;
 		fgets(message,250,stdin);
 		if(strcmp(message,"bye")==0){
-			char* despedida = username + "se ha desconectado del chat";
-			write(sockfd,despedida,strlen(despedida),0)
-			close(sockfd)
+			char* despedida = strcat(username,"se ha desconectado del chat");
+			write(sockfd,despedida,strlen(despedida));
+			close(sockfd);
 		}
-		write(sockfd,message,strlen(message),0);
+		write(sockfd,message,strlen(message));
 		while(read(sockfd,&c,1)){
         printf("%c", &c);
     	}

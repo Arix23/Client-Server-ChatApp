@@ -19,13 +19,14 @@ int main(int argc, char **argv){
 	listen(sockfd, 5);
 	while(1){
 		struct sockaddr_in clientAddress;
- 		struct sockaddr_in clientAddress;
         int clientSize = sizeof(clientAddress);
         int clientSocket = accept(sockfd, (struct sockaddr *)&clientAddress, (unsigned int*) &clientSize);
         char c;
         char *message = "Hello desde gitpod";
 		write(clientSocket,message,strlen(message));
-        close(clientSocket);
+        while(read(clientSocket,&c,1)){
+        printf("%c", &c);
+    	}
 	}
 	
 	return 0;
