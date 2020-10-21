@@ -1,1 +1,5 @@
 # HackathonSO
+
+## server
+
+## client
