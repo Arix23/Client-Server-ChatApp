@@ -7,7 +7,7 @@
 #include <string.h>
 
 int main(int argc, char **argv){
-	char* port = argv[1];
+	int port = atoi(argv[1]);
 	
 	struct sockaddr_in serverAddress;
 	serverAddress.sin_family = AF_INET;
@@ -22,10 +22,8 @@ int main(int argc, char **argv){
         int clientSize = sizeof(clientAddress);
         int clientSocket = accept(sockfd, (struct sockaddr *)&clientAddress, (unsigned int*) &clientSize);
         char c;
-        char *message = "Hello desde gitpod";
-		write(clientSocket,message,strlen(message));
         while(read(clientSocket,&c,1)){
-        printf("%c", &c);
+        printf("%c\n", c);
     	}
 	}
 	
