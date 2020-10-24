@@ -28,7 +28,11 @@ int main(int argc, char **argv){
     if(connect(sockfd,(struct sockaddr *)&serverAddr,sizeof(serverAddr))<0){
         printf("ERROR\n");
     }
-	char* bienvenida = username;
+	
+	char bienvenida[250];
+	strcpy(bienvenida, "");
+	strcat(bienvenida, username);
+	strcat(bienvenida, " se ha unido al chat...\n");
 	write(sockfd,bienvenida,strlen(bienvenida));
 	
 	
@@ -36,10 +40,18 @@ int main(int argc, char **argv){
 		char c;
 		char message[250];
 		char bye[250];
+		char despedida[250];
+		strcpy(despedida, "");
+		strcat(despedida, username);
+		strcat(despedida, " se ha salido del chat...\n");
 		strcpy(bye,"bye\n");
+		
+		strcpy(message, "");
+		strcat(message, username);
 		fgets(message,250,stdin);
+		
 		if(strcmp(message,bye)==0){
-			write(sockfd,username,strlen(username));
+			write(sockfd,despedida,strlen(despedida));
 			close(sockfd);
 			exit(0);
 		}
