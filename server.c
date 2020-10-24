@@ -8,9 +8,9 @@
 
 int clientsConnected = 0;
 
-void *conectarClients(void){
-	
-}
+
+
+
 
 int main(int argc, char **argv){
 	int port = atoi(argv[1]);
@@ -27,12 +27,10 @@ int main(int argc, char **argv){
 	while(1){
 		char message[250];
 		strcpy(message, "Bienvenido al chat!");
-		
 		struct sockaddr_in clientAddress;
         int clientSize = sizeof(clientAddress);
         int clientSocket = accept(sockfd, (struct sockaddr *)&clientAddress, (unsigned int*) &clientSize);
 		write(clientSocket,message,strlen(message));
-		
         char c;
         while(read(clientSocket,&c,1)){
         printf("%c", c);
