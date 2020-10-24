@@ -6,7 +6,18 @@
 #include <strings.h>
 #include <string.h>
 #include <unistd.h>
+#include <pthread.h>
 
+
+void *RecibirMensajes(void* sockfd){
+	int clientSocket = *((int *) sockfd);
+	while(1){
+		char data[250];
+		int read = recv(clientSocket,data,250,0);
+		data[read] = '\0';
+		printf("%s\n",data);
+	}
+}
 
 int main(int argc, char **argv){
 	char* ip = argv[1];
@@ -35,27 +46,38 @@ int main(int argc, char **argv){
 	strcat(bienvenida, " se ha unido al chat...\n");
 	write(sockfd,bienvenida,strlen(bienvenida));
 	
+	pthread_t thread;
+	pthread_create(&thread, NULL, RecibirMensajes, (void *) &sockfd );
+	
 	
 	while(1){
 		char c;
 		char message[250];
 		char bye[250];
 		char despedida[250];
+		char complete_message[250];
+		
 		strcpy(despedida, "");
 		strcat(despedida, username);
 		strcat(despedida, " se ha salido del chat...\n");
-		strcpy(bye,"bye\n");
+		strcpy(bye,username);
+		strcat(bye,": ");
+		strcat(bye,"bye\n");
 		
-		strcpy(message, "");
-		strcat(message, username);
+		
+		strcpy(complete_message, "");
+		strcat(complete_message, username);
+		strcat(complete_message, ": ");
 		fgets(message,250,stdin);
+		strcat(complete_message, message);
 		
-		if(strcmp(message,bye)==0){
+		if(strcmp(complete_message,bye)==0){
+			write(sockfd,complete_message,strlen(complete_message));
 			write(sockfd,despedida,strlen(despedida));
 			close(sockfd);
 			exit(0);
 		}
-		write(sockfd,message,strlen(message));
+		write(sockfd,complete_message,strlen(complete_message));
 		
 	}
 	
