@@ -34,7 +34,7 @@ void * ManejoCliente(void* numClient){
 		data[read] = '\0';
 		printf("%s",data);
 		
-		if(strcmp(data,"Bye\n")==0){
+		if(strcmp(data,"ari: bye\n")==0){
 			printf("SI");
 			clientsConnected = clientsConnected-1;
 			for(int i =numCliente;i<clientsConnected;i++){
@@ -77,10 +77,14 @@ int main(int argc, char **argv){
 		struct sockaddr_in clientAddress;
 		
         int clientSize = sizeof(clientAddress);
-        clientesSocketID[clientsConnected] = accept(sockfd, (struct sockaddr *)&clientAddress, (unsigned int*) &clientSize);
-		write(clientesSocketID[clientsConnected],message,strlen(message));
-		pthread_create(&thread[clientsConnected], NULL, ManejoCliente, (void *) &clientsConnected);
-		clientsConnected++;
+		if(clientsConnected<5){
+			clientesSocketID[clientsConnected] = accept(sockfd, (struct sockaddr *)&clientAddress, (unsigned int*) &clientSize);
+			write(clientesSocketID[clientsConnected],message,strlen(message));
+			pthread_create(&thread[clientsConnected], NULL, ManejoCliente, (void *) &clientsConnected);
+			clientsConnected++;
+		} else{
+		}
+        
 	}
 	
 	
