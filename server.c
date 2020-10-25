@@ -8,17 +8,39 @@
 
 int clientsConnected = 0;
 pthread_t thread[1024];
+int clientesSocketID[1024];
 
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
-void * ManejoCliente(void* sockClient){
-	int ClientSocketInt = *((int *) sockClient);
+void * ManejoCliente(void* numClient){
+	int numCliente = *((int *) numClient);
+	numCliente = numCliente-1;
 	while(1){
 		char data[250];
-		int read = recv(ClientSocketInt,data,250,0);
+		int read = recv(clientesSocketID[numCliente],data,250,0);
 		data[read] = '\0';
-		printf("%s\n",data);
+		printf("%s",data);
+		
+		if(strcmp(data,"bye\n")==0){
+			printf("SI");
+			clientsConnected = clientsConnected-1;
+			for(int i =numCliente;i<clientsConnected;i++){
+				if(i!=clientsConnected-1){
+					clientesSocketID[i] = clientesSocketID[i+1];
+				}
+			}
+			int exit = clientsConnected;
+			pthread_exit(&exit);
+		} else{
+			for(int i = 0;i<clientsConnected;i++){
+				if(i!=numCliente){
+					send(clientesSocketID[i],data,250,0);
+				}
+			}
+		}
+		
+		
 	}
 }
 
@@ -26,7 +48,6 @@ void * ManejoCliente(void* sockClient){
 
 int main(int argc, char **argv){
 	int port = atoi(argv[1]);
-	
 	
 	struct sockaddr_in serverAddress;
 	serverAddress.sin_family = AF_INET;
@@ -37,15 +58,17 @@ int main(int argc, char **argv){
 	bind(sockfd,(const struct sockaddr *)&serverAddress,sizeof(serverAddress));
 	listen(sockfd, 5);
 	char message[250];
-	strcpy(message, "Bienvenido al chat!");
+	strcpy(message, "Bienvenido al chat!\n");
 	while(1){
 		struct sockaddr_in clientAddress;
+		
         int clientSize = sizeof(clientAddress);
-        int clientSocket = accept(sockfd, (struct sockaddr *)&clientAddress, (unsigned int*) &clientSize);
-		write(clientSocket,message,strlen(message));
-		pthread_create(&thread[clientsConnected], NULL, ManejoCliente, (void *) &clientSocket);
+        clientesSocketID[clientsConnected] = accept(sockfd, (struct sockaddr *)&clientAddress, (unsigned int*) &clientSize);
+		write(clientesSocketID[clientsConnected],message,strlen(message));
+		pthread_create(&thread[clientsConnected], NULL, ManejoCliente, (void *) &clientsConnected);
 		clientsConnected++;
 	}
+	
 	
 	
 	return 0;

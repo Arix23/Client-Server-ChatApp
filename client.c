@@ -15,7 +15,7 @@ void *RecibirMensajes(void* sockfd){
 		char data[250];
 		int read = recv(clientSocket,data,250,0);
 		data[read] = '\0';
-		printf("%s\n",data);
+		printf("%s",data);
 	}
 }
 
@@ -44,7 +44,7 @@ int main(int argc, char **argv){
 	strcpy(bienvenida, "");
 	strcat(bienvenida, username);
 	strcat(bienvenida, " se ha unido al chat...\n");
-	write(sockfd,bienvenida,strlen(bienvenida));
+	send(sockfd,bienvenida,strlen(bienvenida),0);
 	
 	pthread_t thread;
 	pthread_create(&thread, NULL, RecibirMensajes, (void *) &sockfd );
@@ -54,8 +54,11 @@ int main(int argc, char **argv){
 		char c;
 		char message[250];
 		char bye[250];
+		char byebye[250];
 		char despedida[250];
 		char complete_message[250];
+		
+		strcpy(byebye, "bye\n");
 		
 		strcpy(despedida, "");
 		strcat(despedida, username);
@@ -72,12 +75,14 @@ int main(int argc, char **argv){
 		strcat(complete_message, message);
 		
 		if(strcmp(complete_message,bye)==0){
-			write(sockfd,complete_message,strlen(complete_message));
-			write(sockfd,despedida,strlen(despedida));
+			send(sockfd,complete_message,strlen(complete_message),0);
+			send(sockfd,despedida,strlen(despedida),0);
+			send(sockfd,byebye,strlen(byebye),0);
 			close(sockfd);
 			exit(0);
+		} else {
+			send(sockfd,complete_message,strlen(complete_message),0);
 		}
-		write(sockfd,complete_message,strlen(complete_message));
 		
 	}
 	
