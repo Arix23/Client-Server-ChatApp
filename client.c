@@ -8,7 +8,6 @@
 #include <unistd.h>
 #include <pthread.h>
 
-
 void *RecibirMensajes(void* sockfd){
 	int clientSocket = *((int *) sockfd);
 	while(1){
@@ -16,6 +15,9 @@ void *RecibirMensajes(void* sockfd){
 		int read = recv(clientSocket,data,250,0);
 		data[read] = '\0';
 		printf("%s",data);
+		if(strcmp(data,"Bye desde el server\n")==0){
+			pthread_exit(NULL);
+		}
 	}
 }
 
@@ -58,7 +60,7 @@ int main(int argc, char **argv){
 		char despedida[250];
 		char complete_message[250];
 		
-		strcpy(byebye, "bye\n");
+		strcpy(byebye, "Bye\n");
 		
 		strcpy(despedida, "");
 		strcat(despedida, username);

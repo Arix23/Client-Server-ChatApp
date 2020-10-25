@@ -5,6 +5,7 @@
 #include <netinet/in.h>
 #include <strings.h>
 #include <string.h>
+#include <signal.h> 
 
 int clientsConnected = 0;
 pthread_t thread[1024];
@@ -12,6 +13,17 @@ int clientesSocketID[1024];
 
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+
+void signalHandler(int signum){
+	char byeServer[250];
+	strcpy(byeServer, "Bye desde el server\n");
+    for(int i = 0;i<clientsConnected;i++){
+		send(clientesSocketID[i],byeServer,250,0);
+		pthread_cancel(thread[i]);
+		
+	}
+	exit(0);
+}
 
 void * ManejoCliente(void* numClient){
 	int numCliente = *((int *) numClient);
@@ -22,7 +34,7 @@ void * ManejoCliente(void* numClient){
 		data[read] = '\0';
 		printf("%s",data);
 		
-		if(strcmp(data,"bye\n")==0){
+		if(strcmp(data,"Bye\n")==0){
 			printf("SI");
 			clientsConnected = clientsConnected-1;
 			for(int i =numCliente;i<clientsConnected;i++){
@@ -47,6 +59,8 @@ void * ManejoCliente(void* numClient){
 
 
 int main(int argc, char **argv){
+	signal(2,signalHandler);
+	
 	int port = atoi(argv[1]);
 	
 	struct sockaddr_in serverAddress;
