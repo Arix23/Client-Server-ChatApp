@@ -1,3 +1,8 @@
+/*
+Ari Valenzuela - A01635584
+Nataly Hernández - A01631314
+Diego Vazquez - A00226803
+*/
 #include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,6 +13,7 @@
 #include <unistd.h>
 #include <pthread.h>
 
+//flag para indicar al thread o al main para terminar el programa
 int flag = 0;
 
 void *RecibirMensajes(void* sockfd){
@@ -20,7 +26,7 @@ void *RecibirMensajes(void* sockfd){
 		int read = recv(clientSocket,data,250,0);
 		data[read] = '\0';
 		printf("%s",data);
-		if(strcmp(data,"Bye desde el server\n")==0){
+		if(strcmp(data,"\nBye desde el server\n")==0){
 			close(sockfd);
 			flag = 1;
 			break;
@@ -50,6 +56,7 @@ int main(int argc, char **argv){
         printf("ERROR\n");
     }
 	
+	//Una vez conectado, manda mensaje de conectado al chat
 	char bienvenida[250];
 	strcpy(bienvenida, "");
 	strcat(bienvenida, username);
@@ -73,6 +80,7 @@ int main(int argc, char **argv){
 		char despedida[250];
 		char complete_message[250];
 		
+		//terminar cliente
 		strcpy(byebye, "Bye\n");
 		
 		strcpy(despedida, "");
