@@ -8,17 +8,25 @@
 #include <unistd.h>
 #include <pthread.h>
 
+int flag = 0;
+
 void *RecibirMensajes(void* sockfd){
 	int clientSocket = *((int *) sockfd);
 	while(1){
+		if(flag==1){
+			break;
+		}
 		char data[250];
 		int read = recv(clientSocket,data,250,0);
 		data[read] = '\0';
 		printf("%s",data);
 		if(strcmp(data,"Bye desde el server\n")==0){
-			pthread_exit(NULL);
+			close(sockfd);
+			flag = 1;
+			break;
 		}
 	}
+	pthread_exit(NULL);
 }
 
 int main(int argc, char **argv){
@@ -53,6 +61,11 @@ int main(int argc, char **argv){
 	
 	
 	while(1){
+		
+		if(flag==1){
+			break;
+		}
+		
 		char c;
 		char message[250];
 		char bye[250];
@@ -77,16 +90,23 @@ int main(int argc, char **argv){
 		strcat(complete_message, message);
 		
 		if(strcmp(complete_message,bye)==0){
+			send(sockfd,byebye,strlen(byebye),0);
 			send(sockfd,complete_message,strlen(complete_message),0);
 			send(sockfd,despedida,strlen(despedida),0);
-			send(sockfd,byebye,strlen(byebye),0);
 			close(sockfd);
-			exit(0);
+			flag=1;
+			break;
+			
 		} else {
+			if(flag==1){
+				break;
+			}
 			send(sockfd,complete_message,strlen(complete_message),0);
 		}
 		
 	}
+	pthread_exit(NULL);
+	
 	
 	
 	return 0;

@@ -11,14 +11,13 @@ int clientsConnected = 0;
 pthread_t thread[1024];
 int clientesSocketID[1024];
 
-static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
 void signalHandler(int signum){
 	char byeServer[250];
 	strcpy(byeServer, "Bye desde el server\n");
     for(int i = 0;i<clientsConnected;i++){
 		send(clientesSocketID[i],byeServer,250,0);
+		close(clientesSocketID[i]);
 		pthread_cancel(thread[i]);
 		
 	}
@@ -34,19 +33,13 @@ void * ManejoCliente(void* numClient){
 		data[read] = '\0';
 		printf("%s",data);
 		
-		if(strcmp(data,"ari: bye\n")==0){
-			printf("SI");
-			clientsConnected = clientsConnected-1;
-			for(int i =numCliente;i<clientsConnected;i++){
-				if(i!=clientsConnected-1){
-					clientesSocketID[i] = clientesSocketID[i+1];
-				}
-			}
-			int exit = clientsConnected;
-			pthread_exit(&exit);
+		if(strncmp(data,"Bye",3)==0){
+			close(clientesSocketID[numCliente]);
+			clientesSocketID[numCliente] = -1;
+			break;
 		} else{
 			for(int i = 0;i<clientsConnected;i++){
-				if(i!=numCliente){
+				if(i!=numCliente && clientesSocketID[i]!=-1){
 					send(clientesSocketID[i],data,250,0);
 				}
 			}
@@ -54,6 +47,7 @@ void * ManejoCliente(void* numClient){
 		
 		
 	}
+	pthread_exit(NULL);
 }
 
 
@@ -72,7 +66,9 @@ int main(int argc, char **argv){
 	bind(sockfd,(const struct sockaddr *)&serverAddress,sizeof(serverAddress));
 	listen(sockfd, 5);
 	char message[250];
+	char muchosconectados[250];
 	strcpy(message, "Bienvenido al chat!\n");
+	strcpy(muchosconectados,"Hay muchos conectados\n");
 	while(1){
 		struct sockaddr_in clientAddress;
 		
@@ -83,9 +79,14 @@ int main(int argc, char **argv){
 			pthread_create(&thread[clientsConnected], NULL, ManejoCliente, (void *) &clientsConnected);
 			clientsConnected++;
 		} else{
+			int clientID;
+			clientID = accept(sockfd, (struct sockaddr *)&clientAddress, (unsigned int*) &clientSize);
+			write(clientID,muchosconectados,strlen(muchosconectados));
+			close(clientID);
 		}
         
 	}
+	pthread_exit(NULL);
 	
 	
 	
